@@ -1,5 +1,3 @@
-from asyncio.log import logger
-
 from .models import User
 from django.http.response import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -16,13 +14,17 @@ def signup(request):
     # print("*****client")
     try:
         customer_data = JSONParser().parse(request)
+        customer_data['user_type'] = True
+        customer_data['available_now'] = False
+        customer_data['available_today'] = False
         user_serializer = UserSerializer(data=customer_data)
-        # user_serializer.user_type = True
-        # user_serializer.available_now = False
-        # user_serializer.available_today = False
+        print(user_serializer.is_valid())
+        print(user_serializer.errors)
         if user_serializer.is_valid():
             user_serializer.save()
-        return JsonResponse(True, safe=False)
+            return JsonResponse(True, safe=False)
+        else:
+            return JsonResponse(False, safe=False)
     except:
         logging.exception("message")
         return JsonResponse(False, safe=False)
@@ -34,25 +36,34 @@ def signup_ostafandy(request):
     try:
         #pdb.set_trace()
         customer_data = JSONParser().parse(request)
-        #customer_data.user_type = False
+        customer_data['user_type'] = False
+        customer_data['available_now'] = True
+        customer_data['available_today'] = True
         user_serializer = UserSerializer(data=customer_data)
         if user_serializer.is_valid():
             user_serializer.save()
-        return JsonResponse(True, safe=False)
+            return JsonResponse(True, safe=False)
+        else:
+            return JsonResponse(False, safe=False)
     except:
         logging.exception("message")
         return JsonResponse(False, safe=False)
 
 
-def login(request, username, password):
+@csrf_exempt
+def login(request):
     try:
-        customer = User.objects.get(username=username, password=password)
+        login_request = JSONParser().parse(request)
+        print(login_request)
+        customer = User.objects.get(username=login_request['username'], password=login_request['password'])
+        user_serializer = UserSerializer(data=[customer], many=True)
         if customer is None:
             return JsonResponse(False, safe=False)
         else:
-            return JsonResponse(True, safe=False)
+            print(user_serializer.is_valid())
+            return JsonResponse(user_serializer.data, safe=False)
     except User.DoesNotExist:
-        return JsonResponse(False,safe=False)
+        return JsonResponse(False, safe=False)
 
 
 def list_osta(request, cid=1):
@@ -87,13 +98,19 @@ def list_all(request):
     except:
         return JsonResponse([], safe=False)
 
-def change_availability(ostaid):
-    try:
-        user = User.objects.get(id=ostaid)
-        user.available_now = False
-        user.save()
-        return JsonResponse(True)
-    except:
-        return JsonResponse(False)
 
+@csrf_exempt
+def change_availability(request):
+    try:
+        login_request = JSONParser().parse(request)
+        print(login_request)
+        customer = User.objects.get(username=login_request['username'], user_type=False)
+        if customer.available_now:
+            customer.available_now = False
+        else:
+            customer.available_now = True
+        customer.save()
+        return JsonResponse(True, safe=False)
+    except:
+        return JsonResponse(False, safe=False)
 
