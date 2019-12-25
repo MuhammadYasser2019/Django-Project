@@ -91,10 +91,10 @@ WSGI_APPLICATION = 'Ostafandy.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.postgresql_psycopg2"),
-        "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "ostafandy")),
+        "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "postgres")),
         "USER": os.environ.get("SQL_USER", "postgres"),
         "PASSWORD": os.environ.get("SQL_PASSWORD", ""),
-        "HOST": os.environ.get("SQL_HOST", "52.15.180.162"),
+        "HOST": os.environ.get("SQL_HOST", "3.135.1.226"),
         "PORT": os.environ.get("SQL_PORT", "5432"),
     }
 }
