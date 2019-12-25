@@ -113,7 +113,3 @@ def change_availability(request):
         return JsonResponse(True, safe=False)
     except:
         return JsonResponse(False, safe=False)
-<<<<<<< HEAD
-=======
-
->>>>>>> 95a75710f83d84304ba0d034ab1c1906ebff2c9a
